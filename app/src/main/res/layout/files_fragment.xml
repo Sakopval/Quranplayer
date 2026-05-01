@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/filesRecycler"
+        tools:listitem="@layout/file_item"
+        android:visibility="gone"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/add_folder"
+        android:backgroundTint="#00A5A5"
+        android:textColor="#FFFFFF"
+        android:id="@+id/addFolderBut"/>
+    <com.google.android.material.loadingindicator.LoadingIndicator
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:id="@+id/loadingIndicator"
+        android:theme="@style/com.example.QuranPlayer.DefaultTheme"/>
+</RelativeLayout>

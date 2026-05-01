@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="com.example.QuranPlayer.DefaultTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:fitsSystemWindows">false</item>
+        <item name="colorOnPrimary">#000000</item>
+        <item name="alertDialogTheme">@style/Theme.Material3.Dark.Dialog.Alert</item>
+        <item name="materialAlertDialogTheme">@style/Theme.Material3.Dark.Dialog.Alert</item>
+        <item name="android:alertDialogTheme">@style/Theme.Material3.Dark.Dialog.Alert</item>
+    </style>
+    <style name="MaterialAlertDialog.Material3.Mine" parent="MaterialAlertDialog.Material3">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="backgroundTint">@android:color/transparent</item>
+    </style>
+</resources>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:title="@string/fiels_settings">
+        <menu>
+            <item android:title="@string/change_the_pdf" android:id="@+id/changPdf" app:showAsAction="ifRoom"/>
+            <item android:title="@string/change_album_folder" android:id="@+id/changeAlbumDir" app:showAsAction="always"/>
+        </menu>
+    </item>
+    <item android:title="@string/player_settings">
+        <menu>
+            <item android:title="@string/set_timer_time" android:id="@+id/timerSet" app:showAsAction="always"/>
+        </menu>
+    </item>
+</menu>

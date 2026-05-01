@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="appName">Quran Player
+    </string>
+    <string name="settings">Settings</string>
+    <string name="save">Save</string>
+    <string name="add_folder">add folder</string>
+    <string name="cover">cover</string>
+    <string name="title">title</string>
+    <string name="background">background</string>
+    <string name="add_a_pdf">add a pdf</string>
+    <string name="page">page</string>
+    <string name="change_the_pdf">Change the pdf</string>
+    <string name="change_album_folder">Change album folder</string>
+    <string name="fiels_settings">Fiels Settings</string>
+    <string name="player_settings">Player settings</string>
+    <string name="set_timer_time">Set timer time</string>
+    <string name="time_in_mins">time in mins</string>
+    <string name="curtime">curtime</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">Ok</string>
+    <string name="quran_session">Quran Session</string>
+    <array name="setting">
+        <item>@string/change_album_folder</item>
+        <item>@string/change_the_pdf</item>
+        <item>@string/set_timer_time</item>
+    </array>
+</resources>

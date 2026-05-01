@@ -1,0 +1,73 @@
+apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
+
+group = 'com.artifex.mupdf'
+version = '1.27.1a'
+
+dependencies {
+	implementation 'androidx.appcompat:appcompat:1.7.1'
+	implementation 'android.arch.lifecycle:common:1.1.1'
+	if (file('../jni/build.gradle').isFile())
+		api project(':jni')
+	else
+		api 'com.artifex.mupdf:fitz:1.27.1'
+
+}
+
+android {
+	namespace 'com.artifex.mupdf.mini'
+	compileSdkVersion 36
+	defaultConfig {
+		minSdkVersion 26
+		targetSdkVersion 36
+	}
+	publishing {
+		singleVariant("release") {
+			withSourcesJar()
+		}
+	}
+	buildFeatures{
+		viewBinding true
+	}
+}
+
+project.afterEvaluate {
+	publishing {
+		publications {
+			release(MavenPublication) {
+				artifactId 'mini'
+				artifact(bundleReleaseAar)
+
+				pom {
+					name = 'mini'
+					url = 'http://www.mupdf.com'
+					licenses {
+						license {
+							name = 'GNU Affero General Public License'
+							url = 'https://www.gnu.org/licenses/agpl-3.0.html'
+						}
+					}
+				}
+				pom.withXml {
+					final dependenciesNode = asNode().appendNode('dependencies')
+					configurations.implementation.allDependencies.each {
+						def dependencyNode = dependenciesNode.appendNode('dependency')
+						dependencyNode.appendNode('groupId', it.group)
+						dependencyNode.appendNode('artifactId', it.name)
+						dependencyNode.appendNode('version', it.version)
+					}
+				}
+			}
+		}
+		repositories {
+			maven {
+				name 'Local'
+				if (project.hasProperty('MAVEN_REPO')) {
+					url = MAVEN_REPO
+				} else {
+					url = "file://${System.properties['user.home']}/MAVEN"
+				}
+			}
+		}
+	}
+}
