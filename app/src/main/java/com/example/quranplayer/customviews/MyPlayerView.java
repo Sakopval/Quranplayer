@@ -17,6 +17,7 @@ import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -482,12 +483,38 @@ public class MyPlayerView extends PlayerView {
                     if (sessionStarted) {
                         player.setAudioAttributes(AudioAttributes.DEFAULT, true);
                         sessionStarted = false;
+                        ((MainActivityViewModel) playerFragmentViewModel).getSessionStarted().setValue(sessionStarted);
                     } else {
                         AnimatedVectorDrawable vectorDrawable = ((AnimatedVectorDrawable) sessionBut.getIcon());
                         vectorDrawable.start();
                         sessionStarted = true;
                         notification = builder.setDefaults(NotificationCompat.DEFAULT_ALL).build();
                         player.play();
+                        CountDownTimer timer = new CountDownTimer(sessionDefTime*60*1000, 1000) {
+                            @Override
+                            public void onFinish() {
+                                ((MainActivityViewModel) playerFragmentViewModel).getManager().notify(2, endNotify.build());
+                                sessionStarted = false;
+                            }
+
+                            @Override
+                            public void onTick(long millisUntilFinished) {
+                                if (sessionDefTime != -1 && playing && sessionStarted) {
+                                    views.setTextViewText(R.id.left, "left for session: " + Util.getStringForTime(new StringBuilder(), new Formatter(),
+                                            millisUntilFinished));
+                                    ((MainActivityViewModel) playerFragmentViewModel).getManager().notify(1, notification);
+                                    Log.i("sessionTime", Util.getStringForTime(new StringBuilder(), new Formatter(), millisUntilFinished));
+                                }
+                            }
+                        };
+                        ((MainActivityViewModel) playerFragmentViewModel).getSessionStarted().observe(owner, sessionStarted->{
+                            if (sessionStarted){
+                                timer.start();
+                            }else {
+                                timer.cancel();
+                            }
+                        });
+                        ((MainActivityViewModel) playerFragmentViewModel).getSessionStarted().setValue(sessionStarted);
                     }
                 } else {
                     Toast.makeText(playerFragmentViewModel.getApplication(), "set time in settings first", Toast.LENGTH_SHORT).show();
@@ -501,19 +528,7 @@ public class MyPlayerView extends PlayerView {
             @Override
             public void onProgressUpdate(long position, long bufferedPosition) {
                 timeBar.setPosition(position);
-                Log.i("position", Util.getStringForTime(new StringBuilder(), new Formatter(), position));
                 timePassed.setText(Util.getStringForTime(new StringBuilder(), new Formatter(), position));
-                if (sessionDefTime != -1 && playing && sessionStarted) {
-                    long time = sessionDefTime * 60 * 1000;
-                    left = left == 0 ? time : left - 1000;
-                    views.setTextViewText(R.id.left, "left for session: " + Util.getStringForTime(new StringBuilder(), new Formatter(), left));
-                    ((MainActivityViewModel) playerFragmentViewModel).getManager().notify(1, notification);
-                    Log.i("sessionTime", Util.getStringForTime(new StringBuilder(), new Formatter(), left));
-                    if (left == 0) {
-                        ((MainActivityViewModel) playerFragmentViewModel).getManager().notify(2, endNotify.build());
-                        sessionStarted = false;
-                    }
-                }
             }
         });
     }
