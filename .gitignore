@@ -1,10 +1,7 @@
-/app/build/
-/app/.gradle/
-/build/
-/mupdf_lib/build/
-/gradlew.bat
-/.idea/
-/gradlew
-/local.properties
-/.gradle/
-/gradle/
+.gradle
+build
+gradlew.bat
+.idea
+gradlew
+local.properties
+gradle
