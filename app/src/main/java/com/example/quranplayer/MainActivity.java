@@ -152,19 +152,20 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         Log.i("sortedEverythingIn", Calendar.getInstance(Locale.getDefault()).getTime().toString());
-        poolExecutor.execute(() -> {
-            try {
-                getPdfUri();
-            } catch (Exception e) {
-                Log.e("getting pdf uri", e.toString());
-            }
-        });
         Log.d("fragmentCountMain", getSupportFragmentManager().getFragments().size() + "");
         playerFragment = new PlayerFragment(getApplicationContext(), tabLayout, appBarLayout, coordinatorLayout, albumDirExists, mediaItems, itemModels,
                 manager, channel);
         filesFragment = new FilesFragment(getApplicationContext(), this, playerFragment, viewPager2, albumDirExists, itemModels, mediaItems);
         documentActivity = new DocumentActivity(getApplicationContext(), this, pdfUri, DocumentFile.fromSingleUri(getApplicationContext(), pdfUri)
                 .getType());
+        poolExecutor.execute(() -> {
+            try {
+                getPdfUri();
+                new ViewModelProvider(documentActivity).get(DocumentActivityViewModel.class).getPdfUri().postValue(pdfUri);
+            } catch (Exception e) {
+                Log.e("getting pdf uri", e.toString());
+            }
+        });
         Log.d("fragmentCountMain", getSupportFragmentManager().getFragments().size() + "");
         pagerAdapter.addFragment(playerFragment, "Player", AppCompatResources.getDrawable(getApplicationContext(), R.drawable.play_icon));
         pagerAdapter.addFragment(filesFragment, "Files", AppCompatResources.getDrawable(getApplicationContext(),

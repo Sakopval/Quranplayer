@@ -231,7 +231,7 @@ public class DocumentActivity extends Fragment
 			}
 		});
 		viewModel.getPdfUri().observe(getViewLifecycleOwner(), uri1 -> {
-			Log.i(APP, uri1.toString() + ", " + uri);
+			Log.i(APP, uri1 + ", " + uri);
 			if (uri1 != null){
 				uri = uri1;
 				Log.i(APP, uri.toString());
