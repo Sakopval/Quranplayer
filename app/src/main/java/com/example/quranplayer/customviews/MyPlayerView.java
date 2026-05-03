@@ -313,7 +313,7 @@ public class MyPlayerView extends PlayerView {
                     Log.e("nextBut", "no next");
                 }
                 if (player.getCurrentMediaItemIndex() == history) {
-                    player.seekTo(viewModel.getLastTime());
+                    player.seekTo(time);
                 }
             }
         });
@@ -358,7 +358,7 @@ public class MyPlayerView extends PlayerView {
                 ended = false;
                 player.seekToPreviousMediaItem();
                 if (player.getCurrentMediaItemIndex() == history) {
-                    player.seekTo(viewModel.getLastTime());
+                    player.seekTo(time);
                 }
             }
         });
