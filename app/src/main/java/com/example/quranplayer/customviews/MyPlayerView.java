@@ -623,7 +623,7 @@ public class MyPlayerView extends PlayerView {
         } else {
             Uri uri = new Uri.Builder().scheme(ContentResolver.SCHEME_ANDROID_RESOURCE).authority(sharedViewModel.getApplication()
                             .getPackageName()).
-                    appendPath(R.raw.try4 + "").build();
+                    appendPath(R.raw.alfatihah + "").build();
             MediaItem mediaItem = MediaItem.fromUri(uri);
             handler.post(() -> {
                 ((View) getParent()).findViewById(R.id.loadingIndicator).setVisibility(View.GONE);
