@@ -252,12 +252,14 @@ public class MyPlayerView extends PlayerView {
         pausedBut.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.play, null));
         paused = true;
         playing = false;
+        viewModel.setPlaying(false);
     }
 
     private void showPlayBut() {
         pausedBut.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.pause, null));
         paused = false;
         playing = true;
+        viewModel.setPlaying(true);
     }
 
     private void setListenersForButs() {
@@ -491,6 +493,9 @@ public class MyPlayerView extends PlayerView {
                         sessionStarted = true;
                         notification = builder.setDefaults(NotificationCompat.DEFAULT_ALL).build();
                         player.play();
+                        playing = true;
+                        paused = false;
+                        viewModel.setPlaying(true);
                         CountDownTimer timer = new CountDownTimer(sessionDefTime*60*1000, 1000) {
                             @Override
                             public void onFinish() {
