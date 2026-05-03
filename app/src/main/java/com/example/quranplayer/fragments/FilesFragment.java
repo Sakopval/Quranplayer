@@ -140,25 +140,4 @@ public class FilesFragment extends Fragment {
             }
         });
     }
-
-    public void recreate() {
-        recreating = true;
-        setRecyclerAdapter();
-    }
-
-    public void setAlbumDirExists(boolean albumDirExists) {
-        this.albumDirExists = albumDirExists;
-    }
-
-    public void setItemModels(ArrayList<ItemModel> itemModels) {
-        this.itemModels = itemModels;
-    }
-
-    public void setMediaItems(ArrayList<MediaItem> mediaItems) {
-        this.mediaItems = mediaItems;
-    }
-
-    public void setMain(Activity main) {
-        this.main = main;
-    }
 }

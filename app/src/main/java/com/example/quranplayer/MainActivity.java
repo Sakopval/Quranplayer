@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
         });
         Log.i("sortedEverythingIn", Calendar.getInstance(Locale.getDefault()).getTime().toString());
         Log.d("fragmentCountMain", getSupportFragmentManager().getFragments().size() + "");
-        playerFragment = new PlayerFragment(getApplicationContext(), tabLayout, appBarLayout, coordinatorLayout, albumDirExists, mediaItems, itemModels,
+        playerFragment = new PlayerFragment(getApplicationContext(), tabLayout, appBarLayout, coordinatorLayout,
                 manager, channel);
         filesFragment = new FilesFragment(getApplicationContext(), this, playerFragment, viewPager2, albumDirExists, itemModels, mediaItems);
         documentActivity = new DocumentActivity(getApplicationContext(), this, pdfUri, DocumentFile.fromSingleUri(getApplicationContext(), pdfUri)

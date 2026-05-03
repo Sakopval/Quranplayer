@@ -61,6 +61,7 @@ import com.example.quranplayer.databinding.ControllerLayoutBinding;
 import com.example.quranplayer.databinding.PlayerLayoutBinding;
 import com.example.quranplayer.datamodels.ItemModel;
 import com.example.quranplayer.viewmodels.MainActivityViewModel;
+import com.example.quranplayer.viewmodels.PlayerFragmentViewModel;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
@@ -91,7 +92,8 @@ public class MyPlayerView extends PlayerView {
     private ArrayList<MediaItem> mediaItems = new ArrayList<>();
     private ArrayList<ItemModel> itemModels = null;
     private final ThreadPoolExecutor poolExecutor = MainActivity.poolExecutor;
-    private AndroidViewModel playerFragmentViewModel;
+    private AndroidViewModel sharedViewModel;
+    private PlayerFragmentViewModel viewModel;
     private final Handler handler = MainActivity.handler;
     private Player player;
     private MyController controlView;
@@ -121,7 +123,6 @@ public class MyPlayerView extends PlayerView {
     private long time;
     private boolean sessionStarted;
     private long sessionDefTime = -1;
-    private long left = 0;
 
 
     private void handlePlayPause() {
@@ -166,12 +167,12 @@ public class MyPlayerView extends PlayerView {
 
         final int color5 = ColorUtils.calculateContrast(color1, COLOR_CONST) < 3 ? ((int) (color1 * 1.3)) : color1;
         final int color6 = ColorUtils.calculateContrast(color2, COLOR_CONST) < 3 ? ((int) (color2 * 1.3)) : color2;
-        ((MainActivityViewModel) playerFragmentViewModel).getColor2().setValue(color6);
-        ((MainActivityViewModel) playerFragmentViewModel).getColor1().setValue(color5);
+        ((MainActivityViewModel) sharedViewModel).getColor2().setValue(color6);
+        ((MainActivityViewModel) sharedViewModel).getColor1().setValue(color5);
         if (tabLayout == null){
-            ((MainActivityViewModel) playerFragmentViewModel).getIsMainActive().setValue(false);
+            ((MainActivityViewModel) sharedViewModel).getIsMainActive().setValue(false);
         }
-        ((MainActivityViewModel) playerFragmentViewModel).getIsMainActive().observe(
+        ((MainActivityViewModel) sharedViewModel).getIsMainActive().observe(
                 owner, new Observer<Boolean>() {
                     @Override
                     public void onChanged(Boolean aBoolean) {
@@ -201,7 +202,7 @@ public class MyPlayerView extends PlayerView {
         Log.i("from setCoverAndBack Tag:", mediaItem.mediaId);
         poolExecutor.execute(() -> {
             try {
-                MetadataRetriever retriever = new MetadataRetriever.Builder(playerFragmentViewModel.getApplication(), mediaItem).build();
+                MetadataRetriever retriever = new MetadataRetriever.Builder(sharedViewModel.getApplication(), mediaItem).build();
                 ListenableFuture<TrackGroupArray> trackGroupListenableFutureTask = retriever.retrieveTrackGroups();
                 Metadata metadata = trackGroupListenableFutureTask.get().get(0).getFormat(0).metadata;
                 final MediaItem mediaItem2 = mediaItem1.buildUpon().setUri(fileUri)
@@ -216,7 +217,7 @@ public class MyPlayerView extends PlayerView {
                     palette = Palette.from(bitmap).generate();
                 } catch (Exception e) {
                     Log.e("Palette bitmap: ", e.toString());
-                    bitmap = BitmapFactory.decodeResource(playerFragmentViewModel.getApplication().getResources(), R.drawable.quran_image);
+                    bitmap = BitmapFactory.decodeResource(sharedViewModel.getApplication().getResources(), R.drawable.quran_image);
                     palette = Palette.from(bitmap).generate();
                 }
                 int color = palette.getVibrantColor(getResources().getColor(R.color.red, null));
@@ -227,7 +228,7 @@ public class MyPlayerView extends PlayerView {
                 }
                 gradientDrawable.setColors(new int[]{color, color1, COLOR_CONST});
                 gradientDrawable.setOrientation(GradientDrawable.Orientation.BOTTOM_TOP);
-                ((MainActivityViewModel) playerFragmentViewModel).getGradientDrawable().postValue(gradientDrawable);
+                ((MainActivityViewModel) sharedViewModel).getGradientDrawable().postValue(gradientDrawable);
                 int finalColor = color;
                 Bitmap finalBitmap = bitmap;
                 int finalColor1 = color1;
@@ -395,8 +396,8 @@ public class MyPlayerView extends PlayerView {
         saveBut.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveBut.setIcon(ResourcesCompat.getDrawable(playerFragmentViewModel.getApplication().getResources(), R.drawable.save_success, null));
-                File historyFile = new File(playerFragmentViewModel.getApplication().getExternalFilesDir("").getPath() + "/history");
+                saveBut.setIcon(ResourcesCompat.getDrawable(sharedViewModel.getApplication().getResources(), R.drawable.save_success, null));
+                File historyFile = new File(sharedViewModel.getApplication().getExternalFilesDir("").getPath() + "/history");
                 try {
                     if (player.getCurrentMediaItem() != null) {
                         Log.i("saveBut Clicked", "mediaId: " + player.getCurrentMediaItem().mediaId);
@@ -420,7 +421,7 @@ public class MyPlayerView extends PlayerView {
                                     @Override
                                     public void onAnimationEnd(Animator animation) {
                                         super.onAnimationEnd(animation);
-                                        saveBut.setIcon(ResourcesCompat.getDrawable(playerFragmentViewModel.getApplication()
+                                        saveBut.setIcon(ResourcesCompat.getDrawable(sharedViewModel.getApplication()
                                                 .getResources(), R.drawable.save, null));
                                         saveBut.animate().alphaBy(1).setDuration(2000).setListener(new AnimatorListenerAdapter() {
                                             @Override
@@ -446,7 +447,7 @@ public class MyPlayerView extends PlayerView {
             public void onClick(View v) {
                 player.pause();
                 random = history;
-                ((MainActivityViewModel) playerFragmentViewModel).setRandom(random);
+                ((MainActivityViewModel) sharedViewModel).setRandom(random);
                 setMediaItemsForPlayer();
                 histBut.animate().rotationBy(-360).setDuration(1000).setListener(new AnimatorListenerAdapter() {
                     @Override
@@ -460,7 +461,7 @@ public class MyPlayerView extends PlayerView {
         sessionBut.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                File defTime = new File(playerFragmentViewModel.getApplication().getExternalFilesDir("").getPath() + "/defTime");
+                File defTime = new File(sharedViewModel.getApplication().getExternalFilesDir("").getPath() + "/defTime");
                 if (defTime.exists()) {
                     poolExecutor.execute(() -> {
                         FileInputStream inputStream;
@@ -483,7 +484,7 @@ public class MyPlayerView extends PlayerView {
                     if (sessionStarted) {
                         player.setAudioAttributes(AudioAttributes.DEFAULT, true);
                         sessionStarted = false;
-                        ((MainActivityViewModel) playerFragmentViewModel).getSessionStarted().setValue(sessionStarted);
+                        ((MainActivityViewModel) sharedViewModel).getSessionStarted().setValue(sessionStarted);
                     } else {
                         AnimatedVectorDrawable vectorDrawable = ((AnimatedVectorDrawable) sessionBut.getIcon());
                         vectorDrawable.start();
@@ -493,7 +494,7 @@ public class MyPlayerView extends PlayerView {
                         CountDownTimer timer = new CountDownTimer(sessionDefTime*60*1000, 1000) {
                             @Override
                             public void onFinish() {
-                                ((MainActivityViewModel) playerFragmentViewModel).getManager().notify(2, endNotify.build());
+                                ((MainActivityViewModel) sharedViewModel).getManager().notify(2, endNotify.build());
                                 sessionStarted = false;
                             }
 
@@ -502,22 +503,22 @@ public class MyPlayerView extends PlayerView {
                                 if (sessionDefTime != -1 && playing && sessionStarted) {
                                     views.setTextViewText(R.id.left, "left for session: " + Util.getStringForTime(new StringBuilder(), new Formatter(),
                                             millisUntilFinished));
-                                    ((MainActivityViewModel) playerFragmentViewModel).getManager().notify(1, notification);
+                                    ((MainActivityViewModel) sharedViewModel).getManager().notify(1, notification);
                                     Log.i("sessionTime", Util.getStringForTime(new StringBuilder(), new Formatter(), millisUntilFinished));
                                 }
                             }
                         };
-                        ((MainActivityViewModel) playerFragmentViewModel).getSessionStarted().observe(owner, sessionStarted->{
+                        ((MainActivityViewModel) sharedViewModel).getSessionStarted().observe(owner, sessionStarted->{
                             if (sessionStarted){
                                 timer.start();
                             }else {
                                 timer.cancel();
                             }
                         });
-                        ((MainActivityViewModel) playerFragmentViewModel).getSessionStarted().setValue(sessionStarted);
+                        ((MainActivityViewModel) sharedViewModel).getSessionStarted().setValue(sessionStarted);
                     }
                 } else {
-                    Toast.makeText(playerFragmentViewModel.getApplication(), "set time in settings first", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(sharedViewModel.getApplication(), "set time in settings first", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -529,6 +530,9 @@ public class MyPlayerView extends PlayerView {
             public void onProgressUpdate(long position, long bufferedPosition) {
                 timeBar.setPosition(position);
                 timePassed.setText(Util.getStringForTime(new StringBuilder(), new Formatter(), position));
+                if (viewModel.getLastTime() != position){
+                    viewModel.setLastTime(position);
+                }
             }
         });
     }
@@ -542,13 +546,14 @@ public class MyPlayerView extends PlayerView {
                         MediaItem mediaItem = mediaItems.get(random);
                         setCoverAndBackGround(mediaItem, mediaItem.requestMetadata.mediaUri);
                         Log.i("from setMediaItem time is: ", "" + time);
+                        if (viewModel.getLastTime() == 0 ){
+                            viewModel.setLastTime(time);
+                        }
                         handler.post(() -> {
-                            ((MainActivityViewModel) playerFragmentViewModel).getPlayer().observe(owner, (player)->{
+                            ((MainActivityViewModel) sharedViewModel).getPlayer().observe(owner, (player)->{
                                 if (player != null) {
-                                    ((MainActivityViewModel) playerFragmentViewModel).getPlayer()
-                                            .getValue().clearMediaItems();
-                                    ((MainActivityViewModel) playerFragmentViewModel).getPlayer()
-                                            .getValue().setMediaItems(mediaItems, random, time);
+                                    player.clearMediaItems();
+                                    player.setMediaItems(mediaItems, random, viewModel.getLastTime());
                                 }
                             });
                         });
@@ -559,7 +564,7 @@ public class MyPlayerView extends PlayerView {
                     MediaItem mediaItem = mediaItems.get(history);
                     handler.post(() -> {
                         player.seekToDefaultPosition(history);
-                        player.seekTo(time);
+                        player.seekTo(viewModel.getLastTime());
                     });
                 }
             } catch (Exception e) {
@@ -577,7 +582,7 @@ public class MyPlayerView extends PlayerView {
     }
 
     private void setRandomSong() throws Exception {
-        File historyFile = new File(playerFragmentViewModel.getApplication().getExternalFilesDir("").getPath() + "/history");
+        File historyFile = new File(sharedViewModel.getApplication().getExternalFilesDir("").getPath() + "/history");
         if (albumDirExists) {
             MediaItem randomSong;
             if (historyFile.exists()) {
@@ -604,22 +609,22 @@ public class MyPlayerView extends PlayerView {
                     setVisibility(View.VISIBLE);
                 });
                 Random random1 = new Random();
-                random = ((MainActivityViewModel) playerFragmentViewModel).getRandom() == -1 ? random1.nextInt(mediaItems.size()) :
-                ((MainActivityViewModel) playerFragmentViewModel).getRandom();
-                ((MainActivityViewModel) playerFragmentViewModel).setRandom(random);
+                random = ((MainActivityViewModel) sharedViewModel).getRandom() == -1 ? random1.nextInt(mediaItems.size()) :
+                ((MainActivityViewModel) sharedViewModel).getRandom();
+                ((MainActivityViewModel) sharedViewModel).setRandom(random);
                 randomSong = mediaItems.get(random);
             }
         } else {
-            Uri uri = new Uri.Builder().scheme(ContentResolver.SCHEME_ANDROID_RESOURCE).authority(playerFragmentViewModel.getApplication()
+            Uri uri = new Uri.Builder().scheme(ContentResolver.SCHEME_ANDROID_RESOURCE).authority(sharedViewModel.getApplication()
                             .getPackageName()).
                     appendPath(R.raw.try4 + "").build();
             MediaItem mediaItem = MediaItem.fromUri(uri);
             handler.post(() -> {
                 ((View) getParent()).findViewById(R.id.loadingIndicator).setVisibility(View.GONE);
                 setVisibility(View.VISIBLE);
-                ((MainActivityViewModel) playerFragmentViewModel).getPlayer().observe(owner, player->{
+                ((MainActivityViewModel) sharedViewModel).getPlayer().observe(owner, player->{
                     if (player != null && !albumDirExists){
-                        player.setMediaItem(mediaItem);
+                        player.setMediaItem(mediaItem, viewModel.getLastTime());
                         player.prepare();
                     }
                 });
@@ -663,13 +668,9 @@ public class MyPlayerView extends PlayerView {
         return player;
     }
 
-    public void setRandom(int random) {
-        this.random = random;
-    }
-
     public void recreate(NotificationManager manager, NotificationChannel channel) {
         this.manager = manager;
-        player = ((MainActivityViewModel) playerFragmentViewModel).getPlayer().getValue();
+        player = ((MainActivityViewModel) sharedViewModel).getPlayer().getValue();
         history = -1;
         controlView.setPlayer(player);
         ((View) getParent()).findViewById(R.id.loadingIndicator).setVisibility(View.VISIBLE);
@@ -686,7 +687,7 @@ public class MyPlayerView extends PlayerView {
     public void setTabLayout(TabLayout tabLayout) {
         this.tabLayout = tabLayout;
         if (tabLayout == null){
-            ((MainActivityViewModel) playerFragmentViewModel).getIsMainActive().setValue(false);
+            ((MainActivityViewModel) sharedViewModel).getIsMainActive().setValue(false);
         }
     }
 
@@ -715,26 +716,29 @@ public class MyPlayerView extends PlayerView {
         title = controllerLayoutBinding.title;
         cover = controllerLayoutBinding.cover;
         background = controllerLayoutBinding.background;
-        manager = ((MainActivityViewModel) playerFragmentViewModel).getManager();
-        views = new RemoteViews(playerFragmentViewModel.getApplication().getPackageName(), R.layout.notification_layout);
-        builder = new Notification.Builder(playerFragmentViewModel.getApplication(), "sessionNotify").setSmallIcon(R.mipmap.ic_launcher)
+        manager = ((MainActivityViewModel) sharedViewModel).getManager();
+        views = new RemoteViews(sharedViewModel.getApplication().getPackageName(), R.layout.notification_layout);
+        builder = new Notification.Builder(sharedViewModel.getApplication(), "sessionNotify").setSmallIcon(R.mipmap.ic_launcher)
                 .setCustomBigContentView(views).setOngoing(true).setOnlyAlertOnce(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
             builder.setShortCriticalText("Quran");
         }
-        endNotify = new Notification.Builder(playerFragmentViewModel.getApplication(), "endNotify")
+        endNotify = new Notification.Builder(sharedViewModel.getApplication(), "endNotify")
                 .setSmallIcon(R.mipmap.ic_launcher).setContentText("Time ended");
-        ((MainActivityViewModel) playerFragmentViewModel).getItemModels().observe(owner, (itemModels)->{
+        ((MainActivityViewModel) sharedViewModel).getItemModels().observe(owner, (itemModels)->{
             setItemModels(itemModels);
         });
-        ((MainActivityViewModel) playerFragmentViewModel).getMediaItems().observe(owner, (items)->{
+        ((MainActivityViewModel) sharedViewModel).getMediaItems().observe(owner, (items)->{
             setMediaItems(items);
-            recreate(((MainActivityViewModel) playerFragmentViewModel).getManager(), null);
+            recreate(((MainActivityViewModel) sharedViewModel).getManager(), null);
         });
     }
 
-    public void setPlayerFragmentViewModel(AndroidViewModel playerFragmentViewModel) {
-        this.playerFragmentViewModel = playerFragmentViewModel;
+    public void setSharedViewModel(AndroidViewModel sharedViewModel) {
+        this.sharedViewModel = sharedViewModel;
+    }
+    public void setViewModel(PlayerFragmentViewModel viewModel){
+        this.viewModel = viewModel;
     }
 
     public void setOwner(LifecycleOwner owner) {
@@ -748,4 +752,5 @@ public class MyPlayerView extends PlayerView {
     public void setPlaying(boolean playing) {
         this.playing = playing;
     }
+
 }
