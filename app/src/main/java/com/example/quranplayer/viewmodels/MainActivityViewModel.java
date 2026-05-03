@@ -52,6 +52,7 @@ public class MainActivityViewModel extends AndroidViewModel {
     private final MutableLiveData<Player> player = new MutableLiveData<>(null);
     private final MutableLiveData<Boolean> isItemModelsAndMediaItemsFull = new MutableLiveData<>(false);
     private final MutableLiveData<Integer> pageIndex = new MutableLiveData<>(-1);
+    private final MutableLiveData<Boolean> sessionStarted = new MutableLiveData<>(false);
     public MainActivityViewModel(@NonNull Application application) {
         super(application);
         context = application.getApplicationContext();
@@ -196,6 +197,10 @@ public class MainActivityViewModel extends AndroidViewModel {
 
     public MutableLiveData<Player> getPlayer() {
         return player;
+    }
+
+    public MutableLiveData<Boolean> getSessionStarted() {
+        return sessionStarted;
     }
 
     public MutableLiveData<Boolean> getIsItemModelsAndMediaItemsFull() {

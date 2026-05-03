@@ -193,11 +193,14 @@ public class DocumentActivity extends Fragment
 		viewModel = new ViewModelProvider(this).get(DocumentActivityViewModel.class);
 		context = viewModel.getApplication();
 		if (uri != null){
+			Log.i(APP, "view model uri is null setting it to: "+uri);
 			viewModel.getPdfUri().setValue(uri);
 		}else {
 			uri = viewModel.getPdfUri().getValue();
+			Log.i(APP, "uri is null setting it to: "+uri);
 		}
 		if (doc == null){
+			Log.i(APP, "doc is null setting it to: "+doc);
 			doc = viewModel.getDocument();
 		}
 	}
@@ -228,6 +231,7 @@ public class DocumentActivity extends Fragment
 			}
 		});
 		viewModel.getPdfUri().observe(getViewLifecycleOwner(), uri1 -> {
+			Log.i(APP, uri1.toString() + ", " + uri);
 			if (uri1 != null){
 				uri = uri1;
 				Log.i(APP, uri.toString());
@@ -309,6 +313,7 @@ public class DocumentActivity extends Fragment
 					doc = Document.openDocument(stream, mimetype);
 				}
 				if (doc != null){
+					Log.i(APP, "setting doc to: "+doc);
 					viewModel.setDocument(doc);
 				}
 				needsPassword = doc.needsPassword();
