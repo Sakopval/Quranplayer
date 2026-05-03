@@ -157,14 +157,6 @@ public class MainActivity extends AppCompatActivity {
         filesFragment = new FilesFragment(getApplicationContext(), this, playerFragment, viewPager2, albumDirExists, itemModels, mediaItems);
         documentActivity = new DocumentActivity(getApplicationContext(), this, pdfUri, DocumentFile.fromSingleUri(getApplicationContext(), pdfUri)
                 .getType());
-        poolExecutor.execute(() -> {
-            try {
-                getPdfUri();
-                new ViewModelProvider(documentActivity).get(DocumentActivityViewModel.class).getPdfUri().postValue(pdfUri);
-            } catch (Exception e) {
-                Log.e("getting pdf uri", e.toString());
-            }
-        });
         Log.d("fragmentCountMain", getSupportFragmentManager().getFragments().size() + "");
         pagerAdapter.addFragment(playerFragment, "Player", AppCompatResources.getDrawable(getApplicationContext(), R.drawable.play_icon));
         pagerAdapter.addFragment(filesFragment, "Files", AppCompatResources.getDrawable(getApplicationContext(),
@@ -406,22 +398,6 @@ public class MainActivity extends AppCompatActivity {
         return metadata;
     }
 
-    public void getPdfUri() throws Exception {
-        File exFilesDir = getExternalFilesDir("");
-        File pdfDest = new File(exFilesDir.getPath() + "/pdfDest");
-        if (pdfDest.exists()) {
-            FileInputStream fileInputStream = new FileInputStream(pdfDest);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(fileInputStream));
-            StringBuilder stringBuilder = new StringBuilder();
-            String s;
-            while ((s = reader.readLine()) != null) {
-                stringBuilder.append(s);
-            }
-            pdfUri = Uri.parse(stringBuilder.toString());
-            fileInputStream.close();
-            reader.close();
-        }
-    }
 
     public static FilesFragment getFilesFragment() {
         return filesFragment;

@@ -48,11 +48,16 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Stack;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class DocumentActivity extends Fragment
 {
@@ -196,6 +201,20 @@ public class DocumentActivity extends Fragment
 			Log.i(APP, "view model uri is null setting it to: "+uri);
 			viewModel.getPdfUri().setValue(uri);
 		}else {
+			Thread thread = new Thread(){
+				@Override
+				public void start() {
+					super.start();
+					try {
+						getPdfUri();
+						viewModel.getPdfUri().postValue(uri);
+					} catch (Exception e) {
+						Log.e("getting pdf uri", e.toString());
+					}
+				}
+			};
+			thread.setPriority(Thread.MAX_PRIORITY);
+			thread.start();
 			uri = viewModel.getPdfUri().getValue();
 			Log.i(APP, "uri is null setting it to: "+uri);
 		}
@@ -980,5 +999,21 @@ public class DocumentActivity extends Fragment
 
 	public void setMimetype(String mimetype) {
 		this.mimetype = mimetype;
+	}
+	public void getPdfUri() throws Exception {
+		File exFilesDir = context.getExternalFilesDir("");
+		File pdfDest = new File(exFilesDir.getPath() + "/pdfDest");
+		if (pdfDest.exists()) {
+			FileInputStream fileInputStream = new FileInputStream(pdfDest);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(fileInputStream));
+			StringBuilder stringBuilder = new StringBuilder();
+			String s;
+			while ((s = reader.readLine()) != null) {
+				stringBuilder.append(s);
+			}
+			uri = Uri.parse(stringBuilder.toString());
+			fileInputStream.close();
+			reader.close();
+		}
 	}
 }
