@@ -90,7 +90,7 @@ public class MyPlayerView extends PlayerView {
     private final int COLOR_CONST = Color.argb(255, 0, 5, 5);
     private LifecycleOwner owner;
     private ArrayList<MediaItem> mediaItems = new ArrayList<>();
-    private ArrayList<ItemModel> itemModels = null;
+    private ArrayList<ItemModel> itemModels = new ArrayList<>();
     private final ThreadPoolExecutor poolExecutor = MainActivity.poolExecutor;
     private AndroidViewModel sharedViewModel;
     private PlayerFragmentViewModel viewModel;
